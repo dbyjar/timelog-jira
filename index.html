@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TimeLog JIRA</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+      user-select: none;
+    }
+    
+    .container {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    h1 {
+      font-size: 16px;
+      color: #333;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+    
+    .input-group {
+      margin-bottom: 15px;
+    }
+    
+    label {
+      display: block;
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 5px;
+    }
+    
+    select, input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      outline: none;
+      background: white;
+    }
+    
+    select:focus, input[type="text"]:focus {
+      border-color: #0052cc;
+    }
+    
+    select {
+      cursor: pointer;
+    }
+
+    .toggle-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .toggle-group label {
+      margin-bottom: 0;
+      cursor: pointer;
+    }
+
+    input[type="checkbox"] {
+      cursor: pointer;
+    }
+    
+    optgroup {
+      font-weight: bold;
+      color: #333;
+    }
+    
+    option {
+      padding: 5px;
+    }
+    
+    .timer {
+      text-align: center;
+      font-size: 32px;
+      font-weight: bold;
+      color: #333;
+      margin: 20px 0;
+      font-variant-numeric: tabular-nums;
+    }
+
+    textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      outline: none;
+      resize: vertical;
+      min-height: 60px;
+      font-family: inherit;
+    }
+
+    textarea:focus {
+      border-color: #0052cc;
+    }
+
+    .hidden {
+      display: none;
+    }
+    
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    
+    .btn-start {
+      background: #0052cc;
+      color: white;
+    }
+    
+    .btn-start:hover {
+      background: #0747a6;
+    }
+    
+    .btn-stop {
+      background: #de350b;
+      color: white;
+    }
+    
+    .btn-stop:hover {
+      background: #bf2600;
+    }
+    
+    .status {
+      text-align: center;
+      font-size: 11px;
+      color: #666;
+      margin-top: 10px;
+    }
+    
+    .status.success {
+      color: #36b37e;
+    }
+    
+    .status.error {
+      color: #de350b;
+    }
+
+    .folder-section {
+      margin-bottom: 15px;
+      padding: 10px;
+      background: #f8f9fa;
+      border-radius: 6px;
+      font-size: 11px;
+    }
+
+    .folder-label {
+      color: #666;
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+
+    .folder-path {
+      color: #333;
+      word-break: break-all;
+      margin-bottom: 8px;
+      font-family: monospace;
+    }
+
+    .btn-small {
+      padding: 6px 12px;
+      font-size: 11px;
+      width: auto;
+      background: #6b7280;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn-small:hover {
+      background: #4b5563;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>TimeLog JIRA</h1>
+
+    <div class="folder-section">
+      <div class="folder-label">CSV Storage Folder:</div>
+      <div class="folder-path" id="folderPath">Loading...</div>
+      <button class="btn-small" id="changeFolderBtn">Change Folder</button>
+    </div>
+
+    <div class="input-group">
+      <label for="jiraTask">JIRA Task</label>
+      <div class="toggle-group">
+        <input type="checkbox" id="manualInputToggle">
+        <label for="manualInputToggle">Manual input</label>
+      </div>
+      
+      <select id="jiraTask">
+        <option value="">-- Select Task --</option>
+        <optgroup label="TDBU-1 Team Meeting">
+          <option value="TDBU-22">TDBU-22 Checklist Deploy</option>
+          <option value="TDBU-23">TDBU-23 Retro</option>
+          <option value="TDBU-24">TDBU-24 Weekly Lead</option>
+          <option value="TDBU-25">TDBU-25 Weekly per Team</option>
+          <option value="TDBU-26">TDBU-26 Weekly with Product</option>
+          <option value="TDBU-27">TDBU-27 Internal Discussion (Brainstorming)</option>
+          <option value="TDBU-28">TDBU-28 Deployment</option>
+          <option value="TDBU-32">TDBU-32 Special Event Support</option>
+        </optgroup>
+        <optgroup label="TDBU-2 Administrative Work">
+          <option value="TDBU-15">TDBU-15 One-on-one Meeting</option>
+          <option value="TDBU-16">TDBU-16 Timesheet Submission</option>
+          <option value="TDBU-17">TDBU-17 Email & Communication</option>
+          <option value="TDBU-18">TDBU-18 Documentation</option>
+          <option value="TDBU-19">TDBU-19 Procurement</option>
+          <option value="TDBU-20">TDBU-20 Recruitment</option>
+          <option value="TDBU-21">TDBU-21 Schedulling</option>
+        </optgroup>
+        <optgroup label="TDBU-3 Performance & Competency">
+          <option value="TDBU-10">TDBU-10 Internal Training</option>
+          <option value="TDBU-11">TDBU-11 External Training</option>
+          <option value="TDBU-12">TDBU-12 Seminar / Webinar / Workshop</option>
+          <option value="TDBU-13">TDBU-13 Learning Journey / LinkedIn Learning</option>
+          <option value="TDBU-14">TDBU-14 PP / PR / PA</option>
+        </optgroup>
+        <optgroup label="TDBU-4 Company Event">
+          <option value="TDBU-9">TDBU-9 Company Event</option>
+        </optgroup>
+        <optgroup label="TDBU-5 Time Off">
+          <option value="TDBU-6">TDBU-6 Izin</option>
+          <option value="TDBU-7">TDBU-7 Cuti</option>
+          <option value="TDBU-8">TDBU-8 Sick Leave</option>
+        </optgroup>
+        <optgroup label="TDBU-29 Process Support">
+          <option value="TDBU-30">TDBU-30 Audit Support</option>
+          <option value="TDBU-31">TDBU-31 Budgeting Support</option>
+          <option value="TDBU-33">TDBU-33 Research</option>
+          <option value="TDBU-34">TDBU-34 Issue Analysis</option>
+          <option value="TDBU-39">TDBU-39 Standby & Support</option>
+        </optgroup>
+        <optgroup label="TDBU-35 External Meeting">
+          <option value="TDBU-36">TDBU-36 Training</option>
+          <option value="TDBU-37">TDBU-37 Workshop</option>
+          <option value="TDBU-38">TDBU-38 Vendor Meeting</option>
+        </optgroup>
+      </select>
+      
+      <input type="text" id="jiraTaskManual" class="hidden" placeholder="Enter JIRA ticket (e.g., PROJ-123)">
+    </div>
+    
+    <div class="timer" id="timer">00:00:00</div>
+
+    <div class="input-group hidden" id="commentGroup">
+      <label for="comment">Comment</label>
+      <textarea id="comment" placeholder="Enter work description..."></textarea>
+    </div>
+
+    <button class="btn btn-start" id="actionBtn">Start Timer</button>
+    
+    <div class="status" id="status"></div>
+  </div>
+  
+  <script src="renderer.js"></script>
+</body>
+</html>
